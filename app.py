@@ -64,6 +64,7 @@ def listar_produtos():
         # Garantir que a ordem dos campos seja conforme o frontend espera
         produtos_formatados = [
             {
+                '_id': str(produto['_id']),  # Convertendo o ObjectId para string
                 'nome': produto['nome'],
                 'precoAntigo': produto['precoAntigo'],
                 'preco': produto['preco'],
