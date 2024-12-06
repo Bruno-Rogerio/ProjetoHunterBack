@@ -115,7 +115,7 @@ def atualizar_produto(id):
 @app.route('/produtos/<id>', methods=['DELETE'])
 def deletar_produto(id):
     try:
-        resultado = produtos_collection.update_one(
+        resultado = produtos_collection.delete_one(
             {'_id': ObjectId(id)},
             {'$set': {'ativo': False}}
         )
