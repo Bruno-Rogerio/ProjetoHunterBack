@@ -111,20 +111,19 @@ def atualizar_produto(id):
     except Exception as e:
         return jsonify({'erro': str(e)}), 400
 
-# Rota para deletar produto (soft delete)
+# Rota para deletar produto (exclusão real)
 @app.route('/produtos/<id>', methods=['DELETE'])
 def deletar_produto(id):
     try:
-        resultado = produtos_collection.delete_one(
-            {'_id': ObjectId(id)},
-            {'$set': {'ativo': False}}
-        )
+        resultado = produtos_collection.delete_one({'_id': ObjectId(id)})  # Remove o documento
         
-        if resultado.modified_count:
-            return jsonify({'mensagem': 'Produto removido com sucesso'})
-        return jsonify({'mensagem': 'Produto não encontrado'}), 404
+        if resultado.deleted_count > 0:  # Verifica se algum documento foi excluído
+            return jsonify({'mensagem': 'Produto excluído com sucesso!'})
+        return jsonify({'mensagem': 'Produto não encontrado!'}), 404
     except Exception as e:
+        print(f"Erro ao excluir produto: {e}")  # Log de erro
         return jsonify({'erro': str(e)}), 400
+
 
 if __name__ == '__main__':
     try:
