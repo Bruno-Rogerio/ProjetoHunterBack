@@ -29,15 +29,15 @@ def criar_produto():
         if not dados:
             return jsonify({'erro': 'Nenhum dado recebido'}), 400
         
-        campos_obrigatorios = ['nome', 'preco_atual', 'preco_antigo', 'link_afiliado', 'template']
+        campos_obrigatorios = ['nome', 'preco', 'precoAntigo', 'link_afiliado', 'template']
         for campo in campos_obrigatorios:
             if campo not in dados:
                 return jsonify({'erro': f'Campo obrigatório ausente: {campo}'}), 400
         
         produto = {
             'nome': dados['nome'],
-            'preco': float(dados['preco_atual']),  # Ajuste no campo 'preco'
-            'precoAntigo': float(dados['preco_antigo']),  # Ajuste no campo 'precoAntigo'
+            'preco': float(dados['preco']),
+            'precoAntigo': float(dados['precoAntigo']),  # Adicionado precoAntigo
             'link_afiliado': dados['link_afiliado'],
             'template': dados['template'],
             'ativo': True,
@@ -61,7 +61,18 @@ def criar_produto():
 def listar_produtos():
     try:
         produtos = list(produtos_collection.find({'ativo': True}))
-        return jsonify([serialize_produto(p) for p in produtos])
+        # Garantir que a ordem dos campos seja conforme o frontend espera
+        produtos_formatados = [
+            {
+                'nome': produto['nome'],
+                'precoAntigo': produto['precoAntigo'],
+                'preco': produto['preco'],
+                'link_afiliado': produto['link_afiliado'],
+                'template': produto.get('template', '')  # Caso o template não exista, é retornado uma string vazia
+            }
+            for produto in produtos
+        ]
+        return jsonify(produtos_formatados)
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
@@ -85,8 +96,8 @@ def atualizar_produto(id):
             {'_id': ObjectId(id)},
             {'$set': {
                 'nome': dados['nome'],
-                'preco': float(dados['preco_atual']),  # Ajuste no campo 'preco'
-                'precoAntigo': float(dados['preco_antigo']),  # Ajuste no campo 'precoAntigo'
+                'preco': float(dados['preco']),
+                'precoAntigo': float(dados['precoAntigo']),  # Atualizando precoAntigo
                 'link_afiliado': dados['link_afiliado'],
                 'template': dados['template'],
                 'data_atualizacao': datetime.utcnow()
