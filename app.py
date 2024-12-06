@@ -113,11 +113,16 @@ def deletar_produto(id):
 
 if __name__ == '__main__':
     try:
-        # Teste de conexão
+        # Teste de conexão com o MongoDB
         client.admin.command('ping')
         print("Conexão com MongoDB bem-sucedida!")
+        
+        # Lê a porta da variável de ambiente ou usa a 5000 como padrão
+        port = int(os.environ.get("PORT", 5000))
+        app.run(host="0.0.0.0", port=port)
     except Exception as e:
         print(f"Erro na conexão com MongoDB: {e}")
+
     
     # Inicia o servidor Flask
     app.run(debug=True)
