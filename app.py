@@ -19,6 +19,7 @@ produtos_collection = db.produtos
 def serialize_produto(produto):
     produto['_id'] = str(produto['_id'])
     produto['categoria'] = produto.get('categoria', 'Geral')
+    produto['data_cadastro'] = produto.get('data_cadastro', datetime.utcnow()).isoformat()  # Garante formato correto
     return produto
 
 # Rota para criar produto
@@ -50,40 +51,52 @@ def criar_produto():
 # Rota para listar produtos
 @app.route('/produtos', methods=['GET'])
 def listar_produtos():
-    produtos = list(produtos_collection.find({'ativo': True}))
-    produtos_formatados = [
-        serialize_produto(produto)
-        for produto in produtos
-    ]
-    return jsonify(produtos_formatados)
+    try:
+        produtos = list(produtos_collection.find({'ativo': True}))  # Apenas produtos ativos
+        produtos_formatados = [serialize_produto(produto) for produto in produtos]
+        return jsonify(produtos_formatados)
+    except Exception as e:
+        print(f"Erro ao listar produtos: {e}")  # Log para debug
+        return jsonify({'erro': 'Erro interno ao listar produtos'}), 500
 
 # Rota para atualizar produto
 @app.route('/produtos/<id>', methods=['PUT'])
 def atualizar_produto(id):
-    dados = request.json
-    resultado = produtos_collection.update_one(
-        {'_id': ObjectId(id)},
-        {'$set': {
-            'nome': dados['nome'],
-            'preco': float(dados['preco']),
-            'precoAntigo': float(dados['precoAntigo']),
-            'link_afiliado': dados['link_afiliado'],
-            'template': dados['template'],
-            'categoria': dados.get('categoria', 'Geral'),
-            'data_atualizacao': datetime.utcnow()
-        }}
-    )
-    if resultado.modified_count:
-        return jsonify({'mensagem': 'Produto atualizado com sucesso'})
-    return jsonify({'mensagem': 'Produto não encontrado'}), 404
+    try:
+        dados = request.json
+        resultado = produtos_collection.update_one(
+            {'_id': ObjectId(id)},
+            {'$set': {
+                'nome': dados['nome'],
+                'preco': float(dados['preco']),
+                'precoAntigo': float(dados['precoAntigo']),
+                'link_afiliado': dados['link_afiliado'],
+                'template': dados['template'],
+                'categoria': dados.get('categoria', 'Geral'),
+                'data_atualizacao': datetime.utcnow()
+            }}
+        )
+        if resultado.modified_count:
+            return jsonify({'mensagem': 'Produto atualizado com sucesso'})
+        return jsonify({'mensagem': 'Produto não encontrado'}), 404
+    except Exception as e:
+        print(f"Erro ao atualizar produto: {e}")  # Log para debug
+        return jsonify({'erro': 'Erro interno ao atualizar o produto'}), 500
 
-# Rota para deletar produto
+# Rota para deletar produto (soft delete - apenas inativa)
 @app.route('/produtos/<id>', methods=['DELETE'])
 def deletar_produto(id):
-    resultado = produtos_collection.delete_one({'_id': ObjectId(id)})
-    if resultado.deleted_count > 0:
-        return jsonify({'mensagem': 'Produto excluído com sucesso!'})
-    return jsonify({'mensagem': 'Produto não encontrado!'}), 404
+    try:
+        resultado = produtos_collection.update_one(
+            {'_id': ObjectId(id)},
+            {'$set': {'ativo': False}}  # Soft delete
+        )
+        if resultado.modified_count > 0:
+            return jsonify({'mensagem': 'Produto excluído com sucesso!'})
+        return jsonify({'mensagem': 'Produto não encontrado!'}), 404
+    except Exception as e:
+        print(f"Erro ao deletar produto: {e}")  # Log para debug
+        return jsonify({'erro': 'Erro interno ao excluir o produto'}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
