@@ -28,7 +28,7 @@ def criar_produto():
         return jsonify({'erro': 'Nenhum dado recebido'}), 400
         
            
-    campos_obrigatorios = ['nome', 'preco', 'precoAntigo', 'link_afiliado', 'template', 'tipo_produto']
+    campos_obrigatorios = ['nome', 'preco', 'precoAntigo', 'link_afiliado', 'template', 'categoria']
     for campo in campos_obrigatorios:
         if campo not in dados:
             return jsonify({'erro': f'Campo obrigatório ausente: {campo}'}), 400
@@ -39,7 +39,7 @@ def criar_produto():
         'precoAntigo': float(dados['precoAntigo']),
         'link_afiliado': dados['link_afiliado'],
         'template': dados['template'],
-        'tipo_produto': dados['tipo_produto'],
+        'categoria': dados['categoria'],
         'categoria': dados('categoria'),
         'ativo': True,
         'data_cadastro': datetime.utcnow()
@@ -60,7 +60,7 @@ def listar_produtos():
             'preco': produto.get('preco', 0),
             'link_afiliado': produto.get('link_afiliado', ''),
             'template': produto.get('template', ''),
-            'tipo_produto': produto.get('tipo_produto', 'Outros'),
+            'categoria': produto.get('categoria', 'Outros'),
             'categoria': produto.get('categoria', 'Geral'),  # Inclui categoria
             'data_cadastro': produto.get('data_cadastro', '').isoformat()
         }
@@ -80,7 +80,7 @@ def atualizar_produto(id):
             'precoAntigo': float(dados['precoAntigo']),
             'link_afiliado': dados['link_afiliado'],
             'template': dados['template'],
-            'tipo_produto': dados['tipo_produto'],
+            'categoria': dados['categoria'],
             'categoria': dados.get('categoria', 'Geral'),  # Atualiza categoria
             'data_atualizacao': datetime.utcnow()
         }}
