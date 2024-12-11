@@ -10,8 +10,6 @@ app = Flask(__name__)
 CORS(app)
 
 # Conexão com MongoDB
-MONGO_URI = "sua_mongo_uri_aqui"
-DB_NAME = "seu_nome_db"
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 produtos_collection = db.produtos
