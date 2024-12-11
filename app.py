@@ -40,6 +40,7 @@ def criar_produto():
         'link_afiliado': dados['link_afiliado'],
         'template': dados['template'],
         'tipo_produto': dados['tipo_produto'],
+        'categoria': dados.get('categoria', 'Geral'),  # Adiciona categoria como opcional, padrão 'Geral'
         'ativo': True,
         'data_cadastro': datetime.utcnow()
     }
@@ -60,6 +61,7 @@ def listar_produtos():
             'link_afiliado': produto.get('link_afiliado', ''),
             'template': produto.get('template', ''),
             'tipo_produto': produto.get('tipo_produto', 'Outros'),
+            'categoria': produto.get('categoria', 'Geral'),  # Inclui categoria
             'data_cadastro': produto.get('data_cadastro', '').isoformat()
         }
         for produto in produtos
@@ -79,6 +81,7 @@ def atualizar_produto(id):
             'link_afiliado': dados['link_afiliado'],
             'template': dados['template'],
             'tipo_produto': dados['tipo_produto'],
+            'categoria': dados.get('categoria', 'Geral'),  # Atualiza categoria
             'data_atualizacao': datetime.utcnow()
         }}
     )
