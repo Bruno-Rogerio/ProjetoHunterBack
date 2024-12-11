@@ -15,9 +15,10 @@ client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 produtos_collection = db.produtos
 
-# Função auxiliar para converter ObjectId em string
+# Função auxiliar para converter ObjectId em string e categorizar o produto
 def serialize_produto(produto):
     produto['_id'] = str(produto['_id'])
+    produto['categoria'] = produto.get('categoria', 'Geral')
     return produto
 
 # Rota para criar produto
@@ -27,7 +28,6 @@ def criar_produto():
     if not dados:
         return jsonify({'erro': 'Nenhum dado recebido'}), 400
         
-           
     campos_obrigatorios = ['nome', 'preco', 'precoAntigo', 'link_afiliado', 'template', 'categoria']
     for campo in campos_obrigatorios:
         if campo not in dados:
@@ -39,8 +39,7 @@ def criar_produto():
         'precoAntigo': float(dados['precoAntigo']),
         'link_afiliado': dados['link_afiliado'],
         'template': dados['template'],
-        'categoria': dados['categoria'],
-        'categoria': dados('categoria'),
+        'categoria': dados.get('categoria', 'Geral'),
         'ativo': True,
         'data_cadastro': datetime.utcnow()
     }
@@ -53,17 +52,7 @@ def criar_produto():
 def listar_produtos():
     produtos = list(produtos_collection.find({'ativo': True}))
     produtos_formatados = [
-        {
-            '_id': str(produto['_id']),
-            'nome': produto['nome'],
-            'precoAntigo': produto.get('precoAntigo', 0),
-            'preco': produto.get('preco', 0),
-            'link_afiliado': produto.get('link_afiliado', ''),
-            'template': produto.get('template', ''),
-            'categoria': produto.get('categoria', 'Outros'),
-            'categoria': produto.get('categoria', 'Geral'),  # Inclui categoria
-            'data_cadastro': produto.get('data_cadastro', '').isoformat()
-        }
+        serialize_produto(produto)
         for produto in produtos
     ]
     return jsonify(produtos_formatados)
@@ -80,8 +69,7 @@ def atualizar_produto(id):
             'precoAntigo': float(dados['precoAntigo']),
             'link_afiliado': dados['link_afiliado'],
             'template': dados['template'],
-            'categoria': dados['categoria'],
-            'categoria': dados.get('categoria', 'Geral'),  # Atualiza categoria
+            'categoria': dados.get('categoria', 'Geral'),
             'data_atualizacao': datetime.utcnow()
         }}
     )
