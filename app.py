@@ -26,7 +26,11 @@ def criar_produto():
     dados = request.json
     if not dados:
         return jsonify({'erro': 'Nenhum dado recebido'}), 400
-
+        
+    # Renomear categoria para tipo_produto se existir
+    if 'categoria' in dados:
+        dados['tipo_produto'] = dados.pop('categoria')
+        
     campos_obrigatorios = ['nome', 'preco', 'precoAntigo', 'link_afiliado', 'template', 'tipo_produto']
     for campo in campos_obrigatorios:
         if campo not in dados:
