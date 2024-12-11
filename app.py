@@ -27,10 +27,7 @@ def criar_produto():
     if not dados:
         return jsonify({'erro': 'Nenhum dado recebido'}), 400
         
-    # Renomear categoria para tipo_produto se existir
-    if 'categoria' in dados:
-        dados['tipo_produto'] = dados.pop('categoria')
-        
+           
     campos_obrigatorios = ['nome', 'preco', 'precoAntigo', 'link_afiliado', 'template', 'tipo_produto']
     for campo in campos_obrigatorios:
         if campo not in dados:
@@ -43,7 +40,7 @@ def criar_produto():
         'link_afiliado': dados['link_afiliado'],
         'template': dados['template'],
         'tipo_produto': dados['tipo_produto'],
-        'categoria': dados.get('categoria', 'Geral'),  # Adiciona categoria como opcional, padrão 'Geral'
+        'categoria': dados('categoria'),
         'ativo': True,
         'data_cadastro': datetime.utcnow()
     }
